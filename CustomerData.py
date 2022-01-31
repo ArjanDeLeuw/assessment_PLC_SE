@@ -1,6 +1,3 @@
-
-# deze script moet dus input vragen (customer information) en output leveren die CustomerDatabase.py can inlezen
-
 class CD:
     """
     a class that:

@@ -1,5 +1,3 @@
-
-# in deze file moet de invoice gegenereerd worden. Dit kan ik zelf.
 from CustomerData import CD
 
 class InvoiceData(CD):
@@ -63,41 +61,6 @@ class InvoiceData(CD):
 
         return return_string
 
-
-"""
-
-              
-        Teaching | 4
-        hours | 45.00 | 180.00 | 0.0 % | 0.00 | 180.00
-        Description | Units | Price | ex VAT | VAT % | VAT | Total
-
-
-        # reformat company_format as once its up and running
-
-        return_string += customer_db_format.format("Firm name", "Address", "KVK", "BTW-ID", "Bank account")
-
-        firm_string = customer_db_format.format(self.firm_name,
-                                                self.firm_address,
-                                                self.firm_kvk,
-                                                self.firm_kvk,
-                                                self.firm_btw_id,
-                                                self.firm_bank_account)
-        return_string += firm_string
-        
-          # perhaps use PyGame to get a nice output?
-
-    # customer data --> customerdatabase.py
-    # date today --> date.today()
-    # who is receiving party? -->
-    # line items
-    # totals
-
-"""
-        return return_string
-
-
-def main():
-    input()
 
 if __name__ == '__main__':
     main()
