@@ -1,5 +1,12 @@
 import os
-from sys import argv
+
+"""
+this script contains all the functions to:
+ read a csv containing customers, 
+ check whether the customer already exists, 
+ and write to a csv 
+"""
+
 
 def read_csv(in_file):
     """This functions reads a file
@@ -17,6 +24,7 @@ def read_csv(in_file):
                 lines.append(line)
     return lines
 
+
 def line_parser(lines):
     """
     This function takes a list and makes a list of lists where each list contains one line.
@@ -32,40 +40,31 @@ def line_parser(lines):
         list_lines.append(list_elements)
     return list_lines
 
-def csv_checker(lines, add_line):
-    """Check if the line you want to add is allready in the database.
 
-    Keyword arguments
-        lines: a list of lists containing all the lines in a file
-        add_line: a list that should be added to the file
-    Return:
-        checker: Boolean value which indicates if the line is allready in the file
+def csv_checker(in_lines, comp_name):
     """
-    checker = 'TRUE'
-
-    # Check if the line allready exists
-    for line in lines:
-        if add_line == line:
-            checker = 'FALSE'
-            break
-    return checker
-
-def enter_editor(in_lines):
-    """
-    This function appends an enter to the last element of a line if this is not present
+    This function checks if the company name is allready in the database
 
     Keyword arguments:
-        in_lines: a list of lists where one list is a line
+        in_lines: list of lists where each list is a line in the file
+        comp_name: string containing the company name
     Return:
-        out_list: same list of lists as in_lines but with an added enter
+        checker: TRUE if the company name is allready in the database and FALSE if the customer is not in the database
+        out_line: if the company exists get the line
     """
+    checker = 'FALSE'
+    out_line = None
+    #If only a string with the company name is supplied:
+    if isinstance(comp_name, str):
+        for line in in_lines[1:]:
+            if line[0] == comp_name:
+                checker = 'TRUE'
+                out_line = line
+                break
+            else:
+                continue
+    return checker, out_line
 
-    for line in in_lines:
-        if line[-1].endswith('\n'):
-            break
-        else:
-            line[-1] = line[-1] + '\n'
-    return in_lines
 
 def line_editor(in_lines, add_line):
     """
@@ -81,9 +80,14 @@ def line_editor(in_lines, add_line):
     if len(in_lines) > 0:
         in_lines.append(add_line)
     else:
-        in_lines = ["Firm name", "Address", "KVK", "BTW-ID", "Bank account\n"]
-        in_lines.append(add_line)
+        in_lines = []
+        in_lines.append(["Firm name", "Street", "postal code and city", "Country", "KVK", "BTW-ID", "Bank account\n"])
+        #remove spaces if present
+        new_line = [data.strip() for data in add_line]
+        new_line[-1] = new_line[-1] + '\n'
+        in_lines.append(new_line)
     return in_lines
+
 
 def list_to_str(in_lines):
     """
@@ -105,6 +109,7 @@ def list_to_str(in_lines):
                 out_str += ','
     return out_str
 
+
 def file_writer(lines, out_file):
     """
     Write one string to a file.
@@ -119,25 +124,27 @@ def file_writer(lines, out_file):
             f.write(lines)
     return out_file
 
-def main():
+
+def main(file, new_customer):
     """
     This function combines all previous functions
 
-    argv[1]: the input/output file containing the contact information
-    argv[2]: a list containing a line of contact information
+    file: the input/output file containing the contact information
+    new_customer: a list containing a line of contact information OR a string containing only the company name
     """
-    added_line = argv[2]
-    added_line[-1] = added_line[-1] + '\n'
-    file_lines = read_csv(argv[1])
+    file_lines = read_csv(file)
     list_lines = line_parser(file_lines)
-    custemor_exists = csv_checker(list_lines, added_line)
-    if custemor_exists == 'FALSE':
-        print('already exists')
+    custemor_exists, custemor_line = csv_checker(list_lines, new_customer)
+    if custemor_exists == 'TRUE':
+        print('Existing customer')
     else:
-        list_lines = enter_editor(list_lines)
-        out_lines = line_editor(list_lines, added_line)
-        out_line_str = list_to_str(out_lines)
-        file_writer(out_line_str, argv[1])
+        #Only proceed when the full line is given
+        if isinstance(new_customer, list):
+            out_lines = line_editor(list_lines, new_customer)
+            out_line_str = list_to_str(out_lines)
+            file_writer(out_line_str, file)
+    return custemor_exists, custemor_line
+
 
 if __name__ == '__main__':
     main()

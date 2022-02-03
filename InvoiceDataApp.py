@@ -1,55 +1,7 @@
-import os
-from sys import argv
-
-def read_csv(in_file):
-    """This functions reads a file
-
-    Keyword arguments:
-        in_file: path to a file
-    Return:
-        lines: a list of all lines in the file
-    """
-    lines = []
-    #First check if the file exists before trying to read it.
-    if os.path.exists(in_file):
-        with open(in_file) as f:
-            for line in f:
-                lines.append(line)
-    return lines
-
-def line_parser(lines):
-    """
-    This function takes a list and makes a list of lists where each list contains one line.
-
-    Keyword arguments:
-        lines: a list containing all the text in a file
-    Return:
-        list_lines: list of lists where each list contains one line
-    """
-    list_lines = []
-    for line in lines:
-        list_elements = line.split(',')
-        list_lines.append(list_elements)
-    return list_lines
-
-def list_checker(in_lines, comp_name):
-    """
-    This function checks if the company name is allready in the database
-
-    Keyword arguments:
-        in_lines: list of lists where each list is a line in the file
-        comp_name: string containing the company name
-    Return:
-        checker: TRUE if the company name is allready in the database and FALSE if the customer is not in the database
-    """
-    checker = 'FALSE'
-    for line in in_lines[1:]:
-        if line[0] == comp_name:
-            checker = 'TRUE'
-            break
-        else:
-            continue
-    return checker
+from CustomerData import CData
+import CustumerDatabase as CDatabase
+import InvoiceData2 as IData
+import InvoiceDatabase as IDatabase
 
 def list_size_checker(in_list, size):
     """
@@ -73,84 +25,62 @@ def list_size_checker(in_list, size):
         size_checker = 'TRUE'
     return size_checker
 
-def list_to_str(in_lines):
-    """
-    This function takes a list of lists and puts all elements into one string.
-
-    Keyword arguments:
-        in_lines: a list of lists where each list is one line
-    Return:
-        out_str: a string containing all the elements from the in_lines variable
-    """
-
-    out_str = ''
-    for list_line in in_lines:
-        for element in list_line:
-            if element.endswith('\n'):
-                out_str += element
-            else:
-                out_str += element
-                out_str += ','
-    return out_str
-
-def file_writer(lines, out_file):
-    """
-    Write one string to a file.
-
-    Keyword arguments:
-        lines: a single string containing all the lines from a file
-        out_file: the path to where the file needs to be written to
-    Return:
-        out_file: the path to where the file is written to
-    """
-    with open(out_file, 'w') as f:
-            f.write(lines)
-    return out_file
 
 def main():
     """
-    This function combines the previous functions
-
-    argv[1]: file path to customer database
+    combines the CustomerData.py and CustomerDatabase.py:
     """
+
+    # 1. produce input:
+    customer_database = 'customer_database.txt'
+    invoice_database = 'invoice_database.txt'
     company_name = input('What is the company name?\n')
-    argv = 'input.txt'
-    customer_database_lines = read_csv(argv[1])
-    customer_database_list = line_parser(customer_database_lines)
-    comp_name_existance = list_checker(customer_database_list, company_name)
-    #Check if the company name allready exists in the database
-    if comp_name_existance == 'FALSE':
-        comp_information = input("Supply the Address, KVK, BTW-ID and Bank account "
+
+    # 2. check whether input already exists:
+    checker, input_customer_db = CDatabase.main(customer_database, company_name)
+    if checker == 'FALSE':
+        comp_information = input("Supply the Street, postal code and city, country, KVK, BTW-ID and Bank account "
                                  "of the company seperated by comma's\n").split(',')
-        #Check if the supplied data is of sufficient size
-        list_len = list_size_checker(comp_information, 4)
+        # Check if the supplied data is of sufficient size
+        list_len = list_size_checker(comp_information, 6)
         while list_len != 'TRUE':
-            comp_information = input("Supply the Address, KVK, BTW-ID and Bank account "
+            comp_information = input("Supply the Street, postal code and city, country, KVK, BTW-ID and Bank account "
                                      "of the company seperated by comma's\n").split(',')
-            list_len = list_size_checker(comp_information, 4)
-        #add space to first element to make it look better in the output file and add an enter to the last element
-        comp_information[0] = ' ' + comp_information[0]
-        comp_information[-1] = comp_information[-1] + '\n'
-        #add company information to the customer database and write it to a file
-        comp_information.insert(0, company_name)
-        customer_database_list.append(comp_information)
-        customer_database_str = list_to_str(customer_database)
-        file_writer(customer_database_str, argv[1])
-    #Get the invoice information
+            list_len = list_size_checker(comp_information, 6)
+
+        # 3. add company information to the customer database and write to a file
+        comp_information.insert(0,company_name)
+        input_customer_db = \
+            str(CData(comp_information)).split(',')
+        CDatabase.main(customer_database, input_customer_db)
+
+    """
+    Combines InvoiceData.py and InvoiceDataApp.py, and using information from customer: 
+    """
+
+    # 4. produce invoice and ask for line items:
     invoice_inf = []
     checker = 'no'
     while checker != 'yes':
         input_invoice = \
-            input("supply the invoice information description, amount, price and VAT seperated by comma's.\n").split(',')
-        #Check if the information is of sufficient size.
+            input("supply the invoice information description, price, amount and VAT-rate seperated by comma's.\n")\
+                .split(',')
+        # Check if the information is of sufficient size.
         list_len = list_size_checker(input_invoice, 4)
         while list_len != 'TRUE':
             input_invoice = \
-                input("supply the invoice information description, amount, price and VAT seperated by comma's.\n")\
+                input("supply the invoice information description, amount, price and VAT seperated by comma's.\n") \
                     .split(',')
             list_len = list_size_checker(input_invoice, 4)
+        # continue appending line items until checker = 'yes'
+        input_invoice[1:] = [int(n) for n in input_invoice[1:]]
         invoice_inf.append(input_invoice)
-        checker = input('Was that everything (yes/no)?')
+        checker = input('Was that everything (yes/no)?\n')
+    # 5. Construct the invoice and write to a database
+    invoice = IData.invoiceGenerator(invoice_inf, input_customer_db)
+    print(invoice)
+    IDatabase.main(invoice_database, invoice.splitlines(True))
+
 
 if __name__ == '__main__':
     main()

@@ -1,58 +1,52 @@
-from CustomerData import CD
+"""
+this file is obsolete. the input differs depending on the numer of line items hence a class is not suitable for the
+task.
+"""
 
-class InvoiceData(CD):
 
-    def __init__(self, Invoice_ID, description, price, amount, VAT_rate, firm_name, firm_address, firm_kvk,
-                 firm_btw_id, firm_bank_account):
-        super().__init__(firm_name, firm_address, firm_kvk, firm_btw_id, firm_bank_account)
-        self.Invoice_ID = Invoice_ID
-        self.description = description
-        self.price = price
-        self.amount = amount
-        self.VAT_rate = VAT_rate
+class InvoiceData(CData):
 
-    def TotalWithoutVAT(self, amount_per_unit, number_of_units):
-        total_without_VAT = amount_per_unit * number_of_units
+    def __init__(self, invoice_inf: list, InvoiceData: list):
+        super().__init__(InvoiceData)
+        self.description = invoice_inf[0]
+        self.price = invoice_inf[1]
+        self.amount = invoice_inf[2]
+        self.VAT_rate = invoice_inf[3]
+
+    def TotalWithoutVAT(self, amount, price):
+        total_without_VAT = amount * price
         return total_without_VAT
 
-    def VAT(self,amount_per_unit, number_of_units, VAT_rate):
-        total_VAT = (amount_per_unit * number_of_units) * VAT_rate
+    def VAT(self,amount, price, VAT_rate):
+        total_VAT = (amount * price) * VAT_rate
         return total_VAT
 
-    def TotalWithVAT(self, amount_per_unit, number_of_units, VAT_rate):
-        total_with_VAT = (amount_per_unit * number_of_units) * (1 + VAT_rate)
+    def TotalWithVAT(self, amount, price, VAT_rate):
+        total_with_VAT = (amount * price) * (1 + VAT_rate)
         return total_with_VAT
-
-    def InvoiceTemplate(self, firm_address, firm_kvk, firm_btw_id, firm_bank_account,
-                        description, amount_per_unit, number_of_units, VAT_rate):
-        ...
-        return template
-
-    def Date(self):
-        ...
 
     def __str__(self):
         return_string = ""
 
-        company = "{}\n {}\n {}\n {}\n {}\n\n "\
+        company = "{}\n{}\n{}\n{}\n{}\n\n"\
             .format("Leuw & Co", "Europapark 9", "3829741", "3747287", "NL28INGB0665801589",)
 
-        invoice = "{}\n\n " "{}\n {}\n\n"\
-            .format( "Concerning: Invoice", self.Invoice_ID, date.today())
+        invoice = "Concerning: Invoice\n\nInvoice ID: {}\nInvoice data: {}\n\n"\
+            .format(0, date.today())
 
-        customer = " To: {}\n {}\n {}\n {}\n"\
-            .format(self.firm_name, self.firm_address, self.firm_address, self.firm_address, self.firm_address)
+        customer = "To:\n{}\n{}\n{}\n{}\n\n"\
+            .format(self.firm_name, self.firm_street, self.firm_postal_code, self.firm_country)
 
-        items_top_rule = "Items:\n {}\t | {}\t | {}\t | {}\t  | {}\t | {}\t | {}\t"\
+        items_top_rule = "Items:\n{:8}\t | {:8}\t | {:8}\t | {:8}\t  | {:8}\t | {:8}\t | {:8}\t"\
             .format("Description", "Units", "Price", "ex VAT", "VAT %", "VAT", "Total")
 
         # for loop if X elements also do this for the input function --> while loop?
-        items = "\n {}\t | {}\t | {}\t | {}\t  | {}\t | {}\t"\
+        items = "\n{:8}\t | {:8}\t | {:8}\t | {:8}\t  | {:8}\t | {:8}\t | {:8}\t "\
             .format(self.description, self.amount, self.price,
-                    self.TotalWithoutVAT(amount_per_unit, number_of_units),
+                    self.TotalWithoutVAT(self.amount, self.price),
                     self.VAT_rate,
-                    self.VAT(self,amount_per_unit, number_of_units, VAT_rate),
-                    self.TotalWithVAT(amount_per_unit, number_of_units, VAT_rate)) # description, units, price should be derived from input
+                    self.VAT(self.amount, self.price, self.VAT_rate),
+                    self.TotalWithVAT(self.amount, self.price, self.VAT_rate))
 
         # loop again for each VAT
         totals = "\n\n\n Totals:\n total excluding VAT\t {}\n total VAT ({})\t {}\n total VAT ({})\t {}\n total\t {}"
@@ -63,4 +57,5 @@ class InvoiceData(CD):
 
 
 if __name__ == '__main__':
-    main()
+    invoice = InvoiceData(['Studying', 300, 1, 3], ['Arjan', 'Brugstraat 10', '5045ZS Tilburg', 'Nederland', 234234, 23423432, 'NL90INGB23423423'])
+    print(invoice)
