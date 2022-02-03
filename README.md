@@ -3,8 +3,6 @@ The assesment of the Python Learning Community advanced track.
 
 https://github.com/ArjanDeLeuw/assessment_PLC_SE
 
-
-
 To do's:
 
 * De code is niet volledig geoptimaliseerd, sommige functies kunnen achter gezien veel efficiënter;

@@ -78,8 +78,8 @@ def main():
         checker = input('Was that everything (yes/no)?\n')
     # 5. Construct the invoice and write to a database
     invoice = IData.invoiceGenerator(invoice_inf, input_customer_db)
-    print(invoice)
     IDatabase.main(invoice_database, invoice.splitlines(True))
+    print(invoice)
 
 
 if __name__ == '__main__':

@@ -101,7 +101,7 @@ def dict_to_str(invoices_dict):
     """
 
     out_str = ''
-    for key,value in invoices_dict.items():
+    for key, value in invoices_dict.items():
         for element in value:
             out_str += element
     return out_str
